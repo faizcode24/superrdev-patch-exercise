@@ -30,53 +30,37 @@ Format for every bug: **Where / How I found it / Cause / Fix / Why it matters**
 - **Fix:** catch the exception and return 400 Bad Request with a message. Also accept lowercase.
 - **Why:** bad input from the user is a client error (400), not a server crash (500).
 
-### Bug 4: No validation of page and pageSize
-- **Where:** `TaskController.java`.
-- **How I found it:** traced how `page` becomes the start index of the list slice.
-- **Cause:** `page=0` gives a negative index and crashes. `pageSize` had no upper limit.
-- **Fix:** return 400 unless `page >= 1` and `1 <= pageSize <= 100`.
-- **Why:** stops crashes and stops someone asking for a huge page.
 
-### Bug 5: Pagination done in memory
-- **Where:** `TaskRepository.java` and `TaskController.java`.
-- **How I found it:** saw that all matching rows were loaded, then cut with `subList`.
-- **Cause:** the whole result was pulled from the database for every request.
-- **Fix:** use `LIMIT :limit OFFSET :offset` in SQL, plus a separate `COUNT(*)` query for the total.
-- **Why:** it works for 49 rows but would be slow and memory-heavy with many rows.
 
-### Bug 6: % and _ in search worked as wildcards
-- **Where:** `TaskController.java` and `TaskRepository.java`.
-- **How I found it:** thought about what a user typing `%` would do in a LIKE query.
-- **Cause:** `%` matches anything and `_` matches one character, so searching `%` returned everything.
-- **Fix:** escape `\`, `%` and `_` in the input, and add `ESCAPE '\'` to the LIKE.
-- **Why:** the search should find the exact text the user typed.
+
+
 
 ---
 
 ## FRONTEND
 
-### Bug 7: Race condition
+### Bug 1: Race condition
 - **Where:** `frontend/src/hooks/useTasks.js`.
 - **How I found it:** saw the effect had no cleanup function.
 - **Cause:** if two requests are sent, the slower old one can finish last and overwrite the newer results.
 - **Fix:** `let ignore = false` in the effect, set to `true` in the cleanup. Responses return early if `ignore` is true.
 - **Why:** the screen could show results for the wrong search.
 
-### Bug 8: Stuck loading and stale error
+### Bug 2: Stuck loading and stale error
 - **Where:** `frontend/src/hooks/useTasks.js`.
 - **How I found it:** noticed `setLoading(false)` was only in `.then`, and `error` was never reset.
 - **Cause:** after a failed request, loading stayed true, so the user saw "Loading..." forever. An old error stayed after a later success.
 - **Fix:** `setError(null)` at the start, and `setLoading(false)` inside `.finally(...)`.
 - **Why:** the user should see the real error and recover when a request works again.
 
-### Bug 9: Page not reset when filter changes
+### Bug 3: Page not reset when filter changes
 - **Where:** `frontend/src/App.jsx`.
 - **How I found it:** thought through: go to page 3, then search for something with one page of results.
 - **Cause:** `page` stayed at 3, so the app asked for page 3 of a 1-page result and showed an empty table ("Page 3 of 1").
 - **Fix:** call `setPage(1)` when the status changes (`handleStatusChange`) and when the search changes.
 - **Why:** a new filter should always start at the first page.
 
-### Bug 10: No debounce on search
+### Bug 4: No debounce on search
 - **Where:** `frontend/src/App.jsx`.
 - **How I found it:** saw the input was connected directly to the value that triggers requests.
 - **Cause:** every keystroke sent a request. Typing "api" sent 3.
