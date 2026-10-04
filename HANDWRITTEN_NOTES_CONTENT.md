@@ -69,9 +69,4 @@ Format for every bug: **Where / How I found it / Cause / Fix / Why it matters**
 
 ---
 
-## LAST PAGE: Summary (write this in your own words)
-- Most important bug: Bug 1, because it gave wrong data (archived tasks shown, wrong totals).
-- How the bugs link: Bug 2 (sleep) + Bug 10 (no debounce) + Bug 7 (race) made wrong results appear in the UI.
-- What I did not change: tests, auth, full-text search.
-- Biggest remaining risk: no automated tests, and `LIKE '%term%'` cannot use an index.
-- Tools: I used Claude to help review and write fixes, and I checked each change myself.
+
