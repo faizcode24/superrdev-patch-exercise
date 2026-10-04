@@ -1,9 +1,4 @@
-# Handwritten Notes: What to Write
-
-Copy these by hand onto paper (about 1 page per 2-3 bugs), photograph or scan the pages, and put the images in `handwritten/`.
-Put your name and the date at the top of page 1. Use your own words wherever you can. They may ask you to explain each bug on the call.
-
-Format for every bug: **Where / How I found it / Cause / Fix / Why it matters**
+# Handwritten Notes: 
 
 ---
 
