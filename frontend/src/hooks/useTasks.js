@@ -8,17 +8,29 @@ export function useTasks(query, status, page, pageSize) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    // Ignore responses from outdated requests (race condition protection)
+    let ignore = false;
+
     setLoading(true);
+    setError(null);
 
     fetchTasks({ query, status, page, pageSize })
       .then((data) => {
+        if (ignore) return;
         setTasks(data.items);
         setTotal(data.total);
-        setLoading(false);
       })
       .catch((err) => {
+        if (ignore) return;
         setError(err.message);
+      })
+      .finally(() => {
+        if (!ignore) setLoading(false);
       });
+
+    return () => {
+      ignore = true;
+    };
   }, [query, status, page, pageSize]);
 
   return { tasks, total, loading, error };
