@@ -1,13 +1,29 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SearchBar from './components/SearchBar';
 import StatusFilter from './components/StatusFilter';
 import TaskTable from './components/TaskTable';
 import { useTasks } from './hooks/useTasks';
 
 export default function App() {
+  const [searchInput, setSearchInput] = useState('');
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState('');
   const [page, setPage] = useState(1);
+
+  // Debounce: only send the request 300ms after the user stops typing,
+  // and go back to page 1 when the search term changes.
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setQuery(searchInput.trim());
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  const handleStatusChange = (value) => {
+    setStatus(value);
+    setPage(1);
+  };
 
   const { tasks, total, loading, error } = useTasks(query, status, page, 10);
 
@@ -21,8 +37,8 @@ export default function App() {
       </header>
 
       <div className="controls">
-        <SearchBar value={query} onChange={setQuery} />
-        <StatusFilter value={status} onChange={setStatus} />
+        <SearchBar value={searchInput} onChange={setSearchInput} />
+        <StatusFilter value={status} onChange={handleStatusChange} />
       </div>
 
       <TaskTable tasks={tasks} loading={loading} error={error} />
